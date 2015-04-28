@@ -2,7 +2,8 @@
     var myApp = angular.module('myApp', [
         'ui.bootstrap',
         'ui.select',
-        'highcharts-ng'
+        'highcharts-ng',
+        'ui-rangeSlider'
     ]);
 
 }());

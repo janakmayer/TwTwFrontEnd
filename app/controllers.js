@@ -2,10 +2,16 @@
 
     var vizController = function ($scope, $filter, TwTwAPI) {
         $scope.clicked = {};
+        $scope.demo1 = {
+        			min: 1429999200 * 1000,
+                    model_min: 1429999400 * 1000,
+                    model_max: 1430045900 * 1000,
+        			max: 1430046000 * 1000
+        		};
         $scope.params = {};
         $scope.stackingOpts = [
-            { label: 'Absolute', value: 'normal' },
-            { label: 'Percentage', value: 'percent' }
+            { label: 'Absolute', value: 'normal', axislabel:'Tweets' },
+            { label: 'Percentage', value: 'percent', axislabel:'Percent' }
           ];
         $scope.stacking = $scope.stackingOpts[1];
 
@@ -125,7 +131,7 @@
             },
             yAxis: {
                 title: {
-                    text: 'Percent'
+                    text: $scope.stacking.axislabel
                 }
             },
             series: [],
@@ -147,7 +153,7 @@
                     var clen = categories.length;
                     for (var j=0; j<clen; ++j) {
                         if (j in categories) {
-                            newData[i].xAxis.categories[j] = $filter('date')(new Date(categories[j]*1000), "MM/dd/yyyy h:mma");
+                            newData[i].xAxis.categories[j] = $filter('date')(categories[j]*1000, "MM/dd/yyyy h:mma");
                         }
                     }
                     newData[i].title = d.title;
