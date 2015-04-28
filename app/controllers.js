@@ -1,7 +1,7 @@
 (function() {
 
     var vizController = function ($scope, $filter, TwTwAPI) {
-
+        $scope.clicked = {};
         $scope.params = {};
         $scope.stackingOpts = [
             { label: 'Absolute', value: 'normal' },
@@ -99,7 +99,9 @@
                     series: {
                         groupPadding: 0.01,
                         events: {click: function(event){
-                            console.log(event.point.category);
+                            $scope.clicked = {candidate: event.delegateTarget.chart.title.textStr,
+                                time: event.point.category};
+                            $scope.$apply()
                     }}}
                 },
                 tooltip: {

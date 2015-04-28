@@ -50,11 +50,12 @@
 
                 <div class="well">
 
-                    <p>Clicked Candidate and Time: <strong>{{clicked}}</strong></p>
+                    <p>Clicked Candidate: <strong>{{clicked.candidate}}</strong></p>
+                    <p>Clicked Time: <strong>{{clicked.time}}</strong></p>
 
-                    <p>Details on clicked user will go here... (fetched through separate API call, with node ID as param)</p>
+                    <p>Based on the clicked candidate and time...</p>
 
-                    <p>We could include a bunch of user details, top x tweets from timeline, or whatever we want...</p>
+                    <p>...we can make a second API call to get back the tweets, which will prevent overloading the UI with all the tweets for all the candidates and times</p>
 
                 </div>
 
