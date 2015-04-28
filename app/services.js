@@ -1,11 +1,18 @@
 (function() {
     var TwTwAPI = function($http) {
 
-        var server_url = 'http://127.0.0.1:5000';
+        var servers = {'local': 'http://127.0.0.1:5000', 'production': 'http://169.53.140.164:8000'};
+        var server_url = servers.local;
 
         var factory = {};
-        factory.viz_data = function(params) {
-            return $http.put(server_url+'/viz', params);
+        factory.settingOptions = function() {
+            return $http.get(server_url+'/setting-options');
+        };
+        factory.sentimentGraph = function(params) {
+            return $http.put(server_url+'/sentiment-graph', params);
+        };
+        factory.tweetDetails = function(params) {
+            return $http.get(server_url+'/tweet-details/'+ params);
         };
         return factory;
     };

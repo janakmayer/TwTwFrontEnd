@@ -1,38 +1,94 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="myApp">
 <head>
-	<link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/css/nv.d3.css" rel="stylesheet">
-	<link href="assets/css/style.css" rel="stylesheet"></head>
+    <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
-    <style>
-        text {
-            font: 12px sans-serif;
-        }
-        svg {
-            display: block;
-        }
-        html, body, svg {
-            margin: 0px;
-            padding: 0px;
-            height: 100%;
-            width: 100%;
-        }
-    </style>
+	<link href="assets/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.5/select2.css">
+  	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.8.5/css/selectize.default.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+
+<body ng-controller="vizController">
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+          <p class="navbar-brand">Republican Primary Twitter Tracker</p>
+          <p class="nav-small-red">Group Project for 'Scaling Up: Really Big Data', by Matthew Hayes, Joshua Lu, Tao Mao and Janak Mayer</p>
+      </div>
+
+    </nav>
+    <div class="container">
+        <div class="row">
+
+            <div class="col-sm-4">
+
+                <div class="well">
+                        <p>A few short explanatory sentences could go here</p>
+                        <p>A few short explanatory sentences could go here</p>
+                </div>
+
+                <div class="well">
+                    <form class="form-horizontal">
+
+                        <div class="form-group">
+                          <label for="hashtagFilter">Select Candidates to Compare: </label>
+                          <ui-select id="hashtagFilter" multiple ng-model="params.candidatesSelected" theme="select2" ng-click="updateData()">
+                              <ui-select-match placeholder="Select candidates to compare...">{{$item}}</ui-select-match>
+                              <ui-select-choices repeat="candidate in params.candidates | filter:$select.search">{{candidate}}</ui-select-choices>
+                          </ui-select>
+                        </div>
+
+                        <div class="form-group">
+                          <label for="minFollowers">Graph as Absolute or Percent?</label>
+                          <select id="minFollowers" class="form-control" data-ng-model="stacking" data-ng-options="opt as opt.label for opt in stackingOpts"></select>
+                        </div>
+
+                    </form>
+                </div>
 
 
-<body ng-controller="vizController" class="with-3d-shadow with-transitions">
 
-    <svg id="chart1"></svg>
+                <div class="well">
 
+                    <p>Clicked Candidate and Time: <strong>{{clicked}}</strong></p>
+
+                    <p>Details on clicked user will go here... (fetched through separate API call, with node ID as param)</p>
+
+                    <p>We could include a bunch of user details, top x tweets from timeline, or whatever we want...</p>
+
+                </div>
+
+            </div>
+
+            <div class="col-sm-8">
+
+                <highchart ng-repeat="data in newData" config="data" class="span10"></highchart>
+
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <!-- Angular scripts-->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="assets/js/angular.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.2/d3.min.js" charset="utf-8"></script>
-    <script src="assets/js/nv.d3.js"></script>
+    <!-- highcharts.js-->
+    <script src="http://code.highcharts.com/stock/highstock.src.js"></script>
+    <script src="assets/js/highcharts-ng.js"></script>
 
+    <!-- angular bootstrap -->
+    <script src="assets/js/ui-bootstrap-tpls-0.12.1.min.js"></script>
+
+    <!-- ui select -->
+    <script src="assets/js/select.js"></script>
 
     <script src="app/app.js"></script>
     <script src="app/directives.js"></script>
     <script src="app/services.js"></script>
     <script src="app/controllers.js"></script>
+
 </body>
+
 </html>

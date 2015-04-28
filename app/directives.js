@@ -1,126 +1,81 @@
 (function() {
 
-    var barChart = function(){
-        function link(scope, element, attributes){
+	'use strict';
 
-            var margin = {top: 40, right: 30, bottom: 20, left: 40},
-                width = 200 - margin.left - margin.right,
-                height = 200 - margin.top - margin.bottom;
+    var sigmaGraph = function() {
 
-            var x = d3.scale.linear()
-                .range([0, width], .1)
+		//over-engineered random id, so that multiple instances can be put on a single page
+		var divId = 'sigmjs-dir-container-'+Math.floor((Math.random() * 999999999999))+'-'+Math.floor((Math.random() * 999999999999))+'-'+Math.floor((Math.random() * 999999999999));
 
-            var y = d3.scale.linear()
-                .range([height, 0]);
+        function link(scope, element, attrs) {
 
-            var xAxis = d3.svg.axis()
-                .scale(x)
-                .orient("bottom")
-                .ticks(3)
-                .tickFormat(d3.format("d"));
+            // Let's first initialize sigma:
+            var s = new sigma({
+                container: divId,
+                settings: {
+                    maxNodeSize:3,
+                    minEdgeSize: 0.1,
+                    maxEdgeSize: 0.2,
+                    zoomMax: 10,
+                    zoomMin: .01
 
-            var yAxis = d3.svg.axis()
-                .scale(y)
-                .orient("left")
-                .ticks(4);
-
-            var v = '';
-            var unitDict = {
-                'tons': 'Million Tons LNG',
-                'price': '$/MMBtu',
-                'dollars': 'Billion Dollars',
-                'yen': 'Hundred Billion Yen'
-            };
-
-            var tip = d3.tip()
-                .attr('class', 'd3-tip')
-                .offset([-10, 0])
-                .html(function(d) {
-                    return "Imports: <span style='color:#FF3333'>" + Math.round(d[v] * 100) / 100 + "</span> "+ unitDict[v];
-                });
-
-            var svg = d3.select(element[0]).append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-            svg.call(tip);
-
-            svg.append("g").attr("class", "x axis").append("text");
-            svg.append("g").attr("class", "y axis").append("text");
-
-            scope.$watchGroup(['data','v'], function(d) {
-                var data = d[0];
-                v = d[1];
-
-                var max_v = 'max_' + v;
-                var max_year = data[0].max_year;
-                var min_year = data[0].min_year;
-                var grouping = data[0][attributes.grouping];
-
-                x.domain([min_year, max_year]);
-                y.domain([0, data[0][max_v]]);
-
-                svg.selectAll("g .x.axis")
-                    .attr("class", "x axis")
-                    .attr("transform", "translate(0," + height + ")")
-                    .call(xAxis)
-                    .select("text")
-                    .attr("text-anchor", "middle")
-                    .classed('axislabel', true)
-                    .attr("y", (height * -1)-10)
-                    .attr("x", width /2)
-                    .text(grouping);
-
-                svg.selectAll("g .y.axis")
-                    .attr("class", "y axis")
-                    .call(yAxis)
-                    .select("text")
-                    .attr("transform", "rotate(-90)")
-                    .attr("y", -36)
-                    .attr("dy", ".71em")
-                    .style("text-anchor", "end")
-                    .text(unitDict[v]);
-
-                svg.selectAll(".bar")
-                    .data(data)
-                    .enter().append("rect")
-                    .attr("class", "bar");
-
-                svg.selectAll(".bar")
-                    .attr("x", function(d) { return x(d.year); })
-                    .attr("width", 4)
-                    .attr("y", function(d) { return y(d[v]); })
-                    .attr("height", function(d) { return height - y(d[v]); })
-                    .on('mouseover', tip.show)
-                    .on('mouseout', tip.hide);
-
+                }
             });
 
+            s.bind('clickNode', function(e) {
+                scope.selectedNode = e.data.node.id;
+                scope.$apply();
+            });
+
+            scope.$watch('graph', function(newVal,oldVal) {
+                if (1==1) {
+                    console.log('graph watch was triggered');
+                    s.graph.clear();
+                    s.graph.read(scope.graph);
+                    s.refresh();
+                }
+            });
+
+            scope.$watch('width', function(newVal,oldVal) {
+                console.log("graph width: "+scope.width);
+                element.children().css("width",scope.width);
+                s.refresh();
+                window.dispatchEvent(new Event('resize')); //hack so that it will be shown instantly
+            });
+            scope.$watch('height', function(newVal,oldVal) {
+                console.log("graph height: "+scope.height);
+                element.children().css("height",scope.height);
+                s.refresh();
+                window.dispatchEvent(new Event('resize'));//hack so that it will be shown instantly
+            });
+
+            element.on('$destroy', function() {
+                s.graph.clear();
+            });
         }
+
         return {
-            link: link,
+			link: link,
             restrict: 'E',
-            scope: {
-                data: '=',
-                v: '@'
-            }
-        };
-    };
+			template: '<div id="'+divId+'" style="width: 100%;height: 100%;"></div>',
+			scope: {
+				//@ reads the attribute value, = provides two-way binding, & works with functions
+				graph: '=',
+				width: '@',
+				height: '@',
+                selectedNode:'=',
+				releativeSizeNode: '='
+			}
+		};
 
-
-
-
+	};
 
 
     /**
      *
      * Pass all functions into module
      */
-
     angular
         .module('myApp')
-        .directive('barChart', barChart)
-
-}());
+        .directive('sigmaGraph', sigmaGraph)
+})();

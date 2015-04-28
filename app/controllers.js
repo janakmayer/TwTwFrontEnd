@@ -1,62 +1,168 @@
 (function() {
 
-    var vizController = function ($scope, TwTwAPI) {
-        $scope.data = null;
+    var vizController = function ($scope, $filter, TwTwAPI) {
+
+        $scope.params = {};
+        $scope.stackingOpts = [
+            { label: 'Absolute', value: 'normal' },
+            { label: 'Percentage', value: 'percent' }
+          ];
+        $scope.stacking = $scope.stackingOpts[1];
+
+
+        $scope.params.candidates = ["Ted Cruz", "Jeb Bush", "Scott Walker", "Chris Christie", "Mike Huckabee",
+            "Marco Rubio", "Rand Paul", "Rick Santorum", "Rick Perry", "Bobby Jindal"];
+
+        $scope.params.candidatesSelected = ["Ted Cruz", "Jeb Bush", "Scott Walker", "Chris Christie", "Mike Huckabee",
+            "Marco Rubio", "Rand Paul", "Rick Santorum", "Rick Perry", "Bobby Jindal"];
+
+
         $scope.getData = function () {
-            TwTwAPI.viz_data({
-                "timestamp":"2015-04-12 23:55:30",
-                "timestamp_end":"2015-04-13 02:05:30"
-            }).success(function(data){
-                     $scope.data = data;
-                    console.log($scope.data);
-
-                    var colors = d3.scale.category20();
-                    var keyColor = function(d, i) {return colors(d.key)};
-
-                    var chart;
-                    nv.addGraph(function() {
-                        chart = nv.models.stackedAreaChart()
-                            .useInteractiveGuideline(true)
-                            .x(function(d) { return d[0] })
-                            .y(function(d) { return d[1] })
-                            .controlLabels({stacked: "Stacked"})
-                            .color(keyColor)
-                            .duration(300);
-
-                        chart.xAxis.tickFormat(function(d) { return d3.time.format('%x')(new Date(d)) });
-                        chart.yAxis.tickFormat(d3.format(',.2f'));
-
-                        d3.select('#chart1')
-                            .datum($scope.data)
-                            .transition().duration(1000)
-                            .call(chart)
-                            .each('start', function() {
-                                setTimeout(function() {
-                                    d3.selectAll('#chart1 *').each(function() {
-                                        if(this.__transition__)
-                                            this.__transition__.duration = 1;
-                                    })
-                                }, 0)
-                            });
-
-                        nv.utils.windowResize(chart.update);
-                        return chart;
-                    });
 
 
 
-                }
-            );
+            TwTwAPI.settingOptions()
+                .success(function(response){
+                    console.log(response);
+                    $scope.graph = response;
+                });
         };
-        $scope.getData();
+
+        //$scope.getData();
+
+        var data = [{
+            series: [{
+                name: 'Strongly Negative',
+                data: [502, 635, 809, 947, 1402, 3634, 5268, 502, 635, 809, 947, 1402, 3634, 5268]
+            }, {
+                name: 'Moderately Negative',
+                data: [106, 107, 111, 133, 221, 767, 1766, 106, 107, 111, 133, 221, 767, 1766]
+            }, {
+                name: 'Neutral',
+                data: [163, 203, 276, 408, 547, 729, 628, 163, 203, 276, 408, 547, 729, 628]
+            }, {
+                name: 'Moderately Positive',
+                data: [18, 31, 54, 156, 339, 818, 1201, 18, 31, 54, 156, 339, 818, 1201]
+            }, {
+                name: 'Strongly Positive',
+                data: [163, 203, 276, 408, 547, 729, 628, 163, 203, 276, 408, 547, 729, 628]
+            }],
+            categories: ['1429999200', '1430002800', '1430006400', '1430010000', '1430013600', '1430017200',
+                '1430020800', '1430024400', '1430028000', '1430031600', '1430035200', '1430038800', '1430042400', '1430046000'],
+            title: {
+                text: 'Jeb Bush'
+            }
+        },{
+            series: [{
+                name: 'Strongly Negative',
+                data: [502, 635, 809, 947, 1402, 3634, 5268, 502, 635, 809, 947, 1402, 3634, 5268]
+            }, {
+                name: 'Moderately Negative',
+                data: [106, 107, 111, 133, 221, 767, 1766, 106, 107, 111, 133, 221, 767, 1766]
+            }, {
+                name: 'Neutral',
+                data: [163, 203, 276, 408, 547, 729, 628, 163, 203, 276, 408, 547, 729, 628]
+            }, {
+                name: 'Moderately Positive',
+                data: [18, 31, 54, 156, 339, 818, 1201, 18, 31, 54, 156, 339, 818, 1201]
+            }, {
+                name: 'Strongly Positive',
+                data: [106, 107, 111, 133, 221, 767, 1766, 106, 107, 111, 133, 221, 767, 1766]
+            }],
+            categories: ['1429999200', '1430002800', '1430006400', '1430010000', '1430013600', '1430017200',
+                '1430020800', '1430024400', '1430028000', '1430031600', '1430035200', '1430038800', '1430042400', '1430046000'],
+            title: {
+                text: 'Ted Cruz'
+            }
+        }
+
+        ];
 
 
 
+        
+        $scope.updateChart = function () {
 
+            var template = {
+
+            options: {
+                chart: {
+                    type: 'column'
+                },
+                colors: ['#d7191c', '#fdae61', '#ffffbf', '#a6d96a', '#1a9641'],
+                plotOptions: {
+                    column: {
+                        stacking: $scope.stacking.value,
+                        pointPadding: 0,
+                        borderWidth: 0
+                    },
+                    series: {
+                        groupPadding: 0.01,
+                        events: {click: function(event){
+                            console.log(event.point.category);
+                    }}}
+                },
+                tooltip: {
+                pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.percentage:.1f}%</b> ({point.y:.0f})<br/>',
+                shared: true,
+                    backgroundColor: "rgba(55, 55, 55, 0.5)",
+                    borderColor:"rgba(55, 55, 55, 0.5)",
+                    style: {
+                        fontSize: '10px',
+                        color: 'white'
+                    }
+                }
+
+            },
+                xAxis: {
+                categories: [],
+                tickmarkPlacement: 'on',
+                title: {
+                    enabled: false
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Percent'
+                }
+            },
+            series: [],
+            title: {},
+
+            loading: false
+        };
+
+
+            var newData = [];
+            var len = data.length;
+            for (var i=0; i<len; ++i) {
+                if (i in data) {
+                    var d = data[i];
+                    newData[i] = angular.copy(template);
+                    newData[i].series = d.series;
+                    var categories = angular.copy(d.categories);
+                    newData[i].xAxis.categories = categories;
+                    var clen = categories.length;
+                    for (var j=0; j<clen; ++j) {
+                        if (j in categories) {
+                            newData[i].xAxis.categories[j] = $filter('date')(new Date(categories[j]*1000), "MM/dd/yyyy h:mma");
+                        }
+                    }
+                    newData[i].title = d.title;
+                }
+            }
+            $scope.newData = newData;
+        };
+
+        $scope.$watch('stacking', function() {
+            console.log($scope.stacking.value);
+            $scope.updateChart()
+
+        });
 
 
     };
 
-    vizController.$inject = ['$scope', 'TwTwAPI'];
+    vizController.$inject = ['$scope', '$filter', 'TwTwAPI'];
     angular.module('myApp').controller('vizController', vizController);
 }());
