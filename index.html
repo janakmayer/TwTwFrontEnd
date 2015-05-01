@@ -24,47 +24,69 @@
     <div class="container">
         <div class="row">
 
+
+
             <div class="col-sm-4">
 
                 <div class="well">
-                        <p>A few short explanatory sentences could go here</p>
-                        <p>A few short explanatory sentences could go here</p>
-                </div>
 
-                <div class="well">
                     <form class="form-horizontal">
 
-                        <div range-slider orientation="horizontal" min="demo1.min" max="demo1.max" model-min="demo1.model_min" model-max="demo1.model_max" filter="date:'MM/dd/yyyy h:mma'"></div>
                         <div class="form-group">
-                          <label for="hashtagFilter">Select Candidates to Compare: </label>
-                          <ui-select id="hashtagFilter" multiple ng-model="params.candidatesSelected" theme="select2" ng-click="updateData()">
-                              <ui-select-match placeholder="Select candidates to compare...">{{$item}}</ui-select-match>
-                              <ui-select-choices repeat="candidate in params.candidates | filter:$select.search">{{candidate}}</ui-select-choices>
-                          </ui-select>
+
+                            <label>Select Timeframe to Chart: </label>
+                            <div range-slider orientation="horizontal" min="timeslider.min" max="timeslider.max" model-min="timeslider.model_min" model-max="timeslider.model_max" step="3600000" filter="date" filter-options="MM/dd/yyyy h:mma" ng-mouseup="getData()"></div>
+
+
+                            <!--<label for="hashtagFilter">Select Candidates to Compare: </label>-->
+                            <!--<ui-select id="hashtagFilter" multiple ng-model="params.candidatesSelected" theme="select2" ng-click="updateData()">-->
+                              <!--<ui-select-match placeholder="Select candidates to compare...">{{$item}}</ui-select-match>-->
+                              <!--<ui-select-choices repeat="candidate in params.candidates | filter:$select.search">{{candidate}}</ui-select-choices>-->
+                            <!--</ui-select>-->
                         </div>
 
                         <div class="form-group">
                           <label for="minFollowers">Graph as Absolute or Percent?</label>
-                          <select id="minFollowers" class="form-control" data-ng-model="stacking" data-ng-options="opt as opt.label for opt in stackingOpts"></select>
+                          <select id="minFollowers" class="form-control" data-ng-model="stacking" data-ng-options="opt as opt.label for opt in stackingOpts" ng-change="changeChart()"></select>
                         </div>
 
                     </form>
                 </div>
 
+                <div ng-hide="hashtags" class="well">
+                    <p>Click on a bar on one of the charts to see top hashtags and 10 sample tweets from that hour for that candidate</p>
+                </div>
+                <div ng-show="hashtags">
+                    <div class="well">
+                        <p>Top {{hashtags.length}} hashtags for <strong>{{clicked.candidate}}</strong> from the hour commencing <strong>{{clicked.time}}</strong></p>
+                        <ul>
+                            <li ng-repeat="hashtag in hashtags"><div ng-repeat="(key, value) in hashtag">Hashtag: <strong>{{key}}</strong>, Frequency: <strong>{{value}}</strong></div></li>
+                        </ul>
 
+                    </div>
+                    <div class="well">
+                        <p>{{tweets.length}} Sample Tweets for <strong>{{clicked.candidate}}</strong> from the hour commencing <strong>{{clicked.time}}</strong>:</p>
+                    </div>
 
-                <div class="well">
+                    <div ng-repeat="tweet in tweets" class="well">
+                        <p>User Name: <strong>{{tweet.user_name}}</strong></p>
+                        <p>Tweet Text: <strong>{{tweet.tweet_text}}</strong></p>
+                        <p>Sentiment Score: {{tweet.sentiment_score}}</p>
+                        <p>Hashtags:</p>
+                        <ul>
+                            <li ng-repeat="hashtag in tweet.hashtags">{{hashtag}}</li>
+                        </ul>
+                        <p>Identified Themes:</p>
+                        <ul>
+                            <li ng-repeat="theme in tweet.identified_themes">{{theme}}</li>
+                        </ul>
 
-                    <p>Clicked Candidate: <strong>{{clicked.candidate}}</strong></p>
-                    <p>Clicked Time: <strong>{{clicked.time}}</strong></p>
-
-                    <p>Based on the clicked candidate and time...</p>
-
-                    <p>...we can make a second API call to get back the tweets, which will prevent overloading the UI with all the tweets for all the candidates and times</p>
+                    </div>
 
                 </div>
 
             </div>
+
 
             <div class="col-sm-8">
 
@@ -78,8 +100,8 @@
 
 
     <!-- Angular scripts-->
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="assets/js/angular.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.js"></script>
     <!-- highcharts.js-->
     <script src="http://code.highcharts.com/stock/highstock.src.js"></script>
     <script src="assets/js/highcharts-ng.js"></script>
@@ -88,13 +110,13 @@
     <script src="assets/js/ui-bootstrap-tpls-0.12.1.min.js"></script>
 
     <!-- ui select and rangeslider-->
-    <script src="assets/js/select.js"></script>
+    <!--<script src="assets/js/select.js"></script>-->
     <script src="assets/js/angular.rangeSlider.js"></script>
 
     <script src="app/app.js"></script>
-    <script src="app/directives.js"></script>
     <script src="app/services.js"></script>
     <script src="app/controllers.js"></script>
+
 
 </body>
 
