@@ -2,7 +2,7 @@
     var TwTwAPI = function($http) {
 
         var servers = {'local': 'http://127.0.0.1:5000', 'production': 'http://198.23.67.172:8000'};
-        var server_url = servers.local;
+        var server_url = servers.production;
 
         var factory = {};
         factory.timeRange = function() {
